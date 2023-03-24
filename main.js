@@ -20,7 +20,7 @@ const chatCompletion = async () => {
         const user_input = readlineSync.question("Your input: ");
 
         if (user_input.toLowerCase() === 'exit') {
-            return
+            break
         }
 
         const messages = [];
