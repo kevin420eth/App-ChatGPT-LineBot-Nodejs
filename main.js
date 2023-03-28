@@ -115,9 +115,15 @@ function handleEvent(event) {
     return client.replyMessage(event.replyToken, echo);
 }
 
+//Confirm working status
+app.get('/', (req, res) => {
+    res.send('ChatGPT is listening...');
+  });
+
 // listen on port
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
     console.log(`listening on ${port}`);
+    console.log(process.env.PORT)
 });
