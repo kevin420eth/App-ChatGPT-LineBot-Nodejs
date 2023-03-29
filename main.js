@@ -20,7 +20,7 @@ const chatCompletion = async (line_message, userId) => {
 
   const messages = [];
 
-  for (const [input_text, completion_text] of history[userId]) {
+  for (const [input_text, completion_text] of history[userId].messagelog) {
     messages.push({ role: "user", content: input_text });
     messages.push({ role: "assistant", content: completion_text });
   }
@@ -44,7 +44,7 @@ const chatCompletion = async (line_message, userId) => {
     })
     const completion_text = response.data.choices[0].message.content
 
-    history[userId].push([user_input, completion_text]);
+    history[userId].messagelog.push([user_input, completion_text]);
 
     console.log(`${completion_text}\n`)
     return completion_text
@@ -99,10 +99,14 @@ app.post('/callback', line.middleware(config), (req, res) => {
 // event handler
 async function handleEvent(event) {
 
-  //Create user's chat history container if it's the first time user talk
+  //Create user's chat history log if it's the first time user talk
   const userId = event.source.userId
   if (history[userId] === undefined) {
-    history[userId] = []
+    history[userId] = {
+      apiKey:'',
+      messageCount:0,
+      messagelog:[]
+    }
   }
 
   // ignore non-text-message event
