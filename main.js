@@ -104,7 +104,7 @@ function handleEvent(event) {
     }
 
     // create a echoing text message
-    const reply = chatCompletion(event.massage)
+    const reply = chatCompletion(event.massage.text)
 
     // use reply API
     return client.replyMessage(event.replyToken, reply);
