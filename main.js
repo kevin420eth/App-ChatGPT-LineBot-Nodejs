@@ -51,9 +51,10 @@ const chatCompletion = async () => {
             })
             const completion_text = response.data.choices[0].message.content
 
-            console.log(completion_text)
-
             history.push([user_input, completion_text]);
+
+            console.log(completion_text)
+            return completion_text
 
         } catch (error) {
             if (error.response) {
@@ -109,7 +110,7 @@ function handleEvent(event) {
     }
 
     // create a echoing text message
-    const echo = { type: 'text', text: event.message.text };
+    const reply = chatCompletion()
 
     // use reply API
     return client.replyMessage(event.replyToken, echo);
