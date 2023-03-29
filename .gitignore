@@ -1,3 +1,5 @@
 /node_modules
 /test.js
 .env
+*.mp4
+*.m4a
