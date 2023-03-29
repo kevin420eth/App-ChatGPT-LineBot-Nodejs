@@ -113,7 +113,7 @@ function handleEvent(event) {
     const reply = chatCompletion()
 
     // use reply API
-    return client.replyMessage(event.replyToken, echo);
+    return client.replyMessage(event.replyToken, reply);
 }
 
 //Confirm working status
