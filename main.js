@@ -15,11 +15,11 @@ const openai = new OpenAIApi(configuration);
 
 //-------------------- Request --------------------//
 
-const chatCompletion = async () => {
+const chatCompletion = async (line_message) => {
     const history = [];
 
     while (true) {
-        const user_input = readlineSync.question("Your input: ");
+        const user_input = line_message
 
         if (user_input.toLowerCase() === 'exit') {
             break
@@ -78,7 +78,7 @@ const creatImage = async () => {
     console.log(`Here's your image's URL:\n${response.data.data[0].url}`)
 }
 
-/*  Line  */
+/*-------------------- Line --------------------*/
 const config = {
     channelAccessToken: 'Igg5OXcdDw7SGZ22j2Cg/2SJFHgCpKjc69QKn4byz+W45pXrmamqDwiT1aVkAxSwUcG+/eTrsU/VL2spyB4oM/5podn+SsNRbvHx7LgICy6jSBdrIMnKBloy9K9ZmMcrzhknwRBl3RqWemmuCGyNlQdB04t89/1O/w1cDnyilFU=',
     channelSecret: '89ddea49b1c340ca26c32538f4e09614'
@@ -110,7 +110,7 @@ function handleEvent(event) {
     }
 
     // create a echoing text message
-    const reply = chatCompletion()
+    const reply = chatCompletion(event.massage)
 
     // use reply API
     return client.replyMessage(event.replyToken, reply);
