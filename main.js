@@ -103,9 +103,8 @@ function handleEvent(event) {
         return Promise.resolve(null);
     }
 
-    const echo = { type: 'text', text: event.message.text };
     // create a echoing text message
-    const reply = chatCompletion(event.message.text)
+    const reply = {type: 'text', text:chatCompletion(event.message.text)}
 
     // use reply API
     return client.replyMessage(event.replyToken, reply);
