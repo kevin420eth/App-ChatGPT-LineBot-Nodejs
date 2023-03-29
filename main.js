@@ -1,9 +1,6 @@
 const { Configuration, OpenAIApi } = require("openai");
 const line = require('@line/bot-sdk');
 const express = require('express');
-readlineSync = require('readline-sync');
-
-require("dotenv").config();
 
 //-------------------- Request --------------------//
 
