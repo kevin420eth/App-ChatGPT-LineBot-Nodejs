@@ -4,7 +4,7 @@ const line = require('@line/bot-sdk')
 const { Configuration, OpenAIApi } = require("openai")
 
 
-//-------------------- ChatGPT Request --------------------//
+//-------------------- ChatGPT APIs --------------------//
 
 const chatCompletion = async (line_message, userId, openai) => {
 
@@ -90,7 +90,7 @@ const createTranscription = async (userId, openai) => {
   }
 }
 
-/*-------------------- Line --------------------*/
+//-------------------- Line --------------------//
 
 //Create Line configuration
 const config = {
