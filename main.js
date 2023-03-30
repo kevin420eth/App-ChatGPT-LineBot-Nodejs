@@ -74,9 +74,9 @@ const createTranscription = async (userId, openai) => {
         const translted_text = response.data.text
         return translted_text
     } catch (error) {
-        if(error.message === 'Request body larger than maxBodyLength limit'){
-          history[userId].activeErrorMessage = '檔案大小超過限制 📂'
-          throw 'System: 檔案大小超過限制\n'
+        if (error.message === 'Request body larger than maxBodyLength limit') {
+            history[userId].activeErrorMessage = '檔案大小超過限制 📂'
+            throw 'System: 檔案大小超過限制\n'
         }
         else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
             history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
@@ -136,8 +136,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
             })
             .catch((error) => {
                 console.error(error)
-                handleErrorEvent(req.body.events[0]).then(()=>{
-                  history[userId].activeErrorMessage = ''
+                handleErrorEvent(req.body.events[0]).then(() => {
+                    history[userId].activeErrorMessage = ''
                 })
             })
     } else if (user_input === '/註冊') {
@@ -166,7 +166,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             .catch((error) => {
                 console.error(error)
                 handleErrorEvent(req.body.events[0]).then(() => {
-                  history[userId].activeErrorMessage = ''
+                    history[userId].activeErrorMessage = ''
                     history[userId].apiKey = ''
                     history[userId].activeDirective = ''
                 })
@@ -200,8 +200,8 @@ async function handleErrorEvent(event) {
     let reply = {}
     if (errorMessage === '請先註冊API金鑰' && event.message.text === '/註冊') {
         reply = { type: 'text', text: '📢系統訊息:\n請輸入你的API金鑰 👇' }
-    }else {
-      reply = { type: 'text', text: `📢系統訊息:\n${errorMessage}` }
+    } else {
+        reply = { type: 'text', text: `📢系統訊息:\n${errorMessage}` }
     }
     return client.replyMessage(event.replyToken, reply)
 }
