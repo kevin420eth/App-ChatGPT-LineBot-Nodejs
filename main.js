@@ -89,17 +89,6 @@ const createTranscription = async (userId, openai) => {
   }
 }
 
-const creatImage = async () => {
-  const response = await openai.createImage({
-    prompt: "Litte mermaid Ariel",
-    n: 1,
-    size: "1080x1080",
-    //response_format:"",
-    //user:""
-  })
-  console.log(`Here's your image's URL:\n${response.data.data[0].url}`)
-}
-
 /*-------------------- Line --------------------*/
 
 //Create Line configuration
