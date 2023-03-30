@@ -47,10 +47,7 @@ const chatCompletion = async (line_message, userId, openai) => {
             return `🤖ChatGPT:\n${completion_text}`
         }
     } catch (error) {
-        if (error.message.startsWith('Invalid character in header content')) {
-            history[userId].activeErrorMessage = '無效的API金鑰 💀'
-            throw 'System: 無效的API金鑰\n'
-        } else if (error.response.data.error.code === 'invalid_api_key') {
+        if (error.message.startsWith('Invalid character in header content') || error.response.data.error.code === 'invalid_api_key') {
             history[userId].activeErrorMessage = '無效的API金鑰 💀'
             throw 'System: 無效的API金鑰\n'
         } else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
