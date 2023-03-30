@@ -1,7 +1,7 @@
-const { Configuration, OpenAIApi } = require("openai");
-const line = require('@line/bot-sdk');
-const express = require('express');
-const fs = require('fs');
+const { Configuration, OpenAIApi } = require("openai")
+const line = require('@line/bot-sdk')
+const express = require('express')
+const fs = require('fs')
 
 //-------------------- ChatGPT Request --------------------//
 
@@ -9,14 +9,14 @@ const chatCompletion = async (line_message, userId, openai) => {
 
   const user_input = line_message
 
-  const messages = [];
+  const messages = []
 
   for (const [input_text, completion_text] of history[userId].messagelog) {
-    messages.push({ role: "user", content: input_text });
-    messages.push({ role: "assistant", content: completion_text });
+    messages.push({ role: "user", content: input_text })
+    messages.push({ role: "assistant", content: completion_text })
   }
 
-  messages.push({ role: "user", content: user_input });
+  messages.push({ role: "user", content: user_input })
 
   try {
     const response = await openai.createChatCompletion({
@@ -41,7 +41,7 @@ const chatCompletion = async (line_message, userId, openai) => {
     } else if (user_input === '/註冊') {
       return '📢系統訊息:\n你已經完成註冊了 👽'
     } else {
-      history[userId].messagelog.push([user_input, completion_text]);
+      history[userId].messagelog.push([user_input, completion_text])
       console.log(`ChatGPT: ${completion_text}\n`)
       return `🤖ChatGPT:\n${completion_text}`
     }
@@ -56,10 +56,10 @@ const chatCompletion = async (line_message, userId, openai) => {
       history[userId].activeErrorMessage = '請先註冊API金鑰'
       throw 'System: 請先註冊API金鑰\n'
     } else if (error.response) {
-      console.log(error.response.status);
-      console.log(error.response.data);
+      console.log(error.response.status)
+      console.log(error.response.data)
     } else {
-      console.log(error.message);
+      console.log(error.message)
     }
   }
 }
@@ -77,13 +77,13 @@ const createTranscription = async (userId, openai) => {
       history[userId].activeErrorMessage = '請先註冊API金鑰'
       throw 'System: 請先註冊API金鑰\n'
     } else {
-      console.log(error.message);
+      console.log(error.message)
     }
   } finally {
     try {
       fs.unlinkSync(`./audio_temp/${userId}.m4a`)
       console.log(`System: 檔案刪除成功`)
-    } catch (err) {
+    } catch (error) {
       console.log(`System: 檔案刪除失敗`)
     }
   }
@@ -96,34 +96,34 @@ const creatImage = async () => {
     size: "1080x1080",
     //response_format:"",
     //user:""
-  });
+  })
   console.log(`Here's your image's URL:\n${response.data.data[0].url}`)
 }
 
 /*-------------------- Line --------------------*/
 
-// Create Line configuration
+//Create Line configuration
 const config = {
   channelAccessToken: process.env.LINE_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET
-};
+}
 
-// Create Line SDK client
-const client = new line.Client(config);
+//Create Line SDK client
+const client = new line.Client(config)
 
-// Create Express app
-const app = express();
+//Create Express app
+const app = express()
 
 //Save user's prompt history
-const history = {};
+const history = {}
 
-// Register a webhook handler with middleware
+//Register a webhook handler with middleware
 app.post('/callback', line.middleware(config), (req, res) => {
   const userId = req.body.events[0].source.userId
   const messageType = req.body.events[0].message.type
   const user_input = req.body.events[0].message.text
 
-  // Initialize User's data
+  //Initialize User's data
   if (history[userId] === undefined) {
     history[userId] = {
       apiKey: '',
@@ -140,16 +140,16 @@ app.post('/callback', line.middleware(config), (req, res) => {
       .then((result) => {
         res.json(result)
       })
-      .catch((err) => {
+      .catch((error) => {
         history[userId].activeErrorMessage = '請先註冊API金鑰'
-        console.error(err);
+        console.error(error)
         Promise
           .all(req.body.events.map(handleErrorEvent))
           .then(() => {
             history[userId].activeErrorMessage = ''
           })
-        res.status(500).end();
-      });
+        res.status(500).end()
+      })
   } else if (user_input === '/註冊') {
     Promise
       .all(req.body.events.map(handleEvent))
@@ -158,12 +158,12 @@ app.post('/callback', line.middleware(config), (req, res) => {
         console.log('System: 你已經完成註冊了\n')
       })
       .catch(() => {
-        console.error('System: 請輸入你的API金鑰\n');
+        console.error('System: 請輸入你的API金鑰\n')
         handleErrorEvent(req.body.events[0]).then(() => {
           history[userId].activeErrorMessage = ''
           history[userId].activeDirective = '請輸入你的API金鑰'
         })
-      });
+      })
   } else if (history[userId].activeDirective === '請輸入你的API金鑰') {
     history[userId].apiKey = user_input
     Promise
@@ -173,8 +173,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
         history[userId].activeDirective = ''
         console.log('System: 註冊成功\n')
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((error) => {
+        console.error(error)
         handleErrorEvent(req.body.events[0]).then(() => {
           history[userId].apiKey = ''
           history[userId].activeDirective = ''
@@ -186,8 +186,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
       .then((result) => {
         res.json(result)
       })
-      .catch((err) => {
-        console.error(err)
+      .catch((error) => {
+        console.error(error)
         handleErrorEvent(req.body.events[0]).then(() => {
           history[userId].activeErrorMessage = ''
         })
@@ -195,17 +195,17 @@ app.post('/callback', line.middleware(config), (req, res) => {
   }
 })
 
-// Error event handler
+//Error event handler
 async function handleErrorEvent(event) {
   const user_id = event.source.userId
   const errorMessage = history[user_id].activeErrorMessage
   
-  // ignore non-message event
+  //Ignore non-message event
   if (event.type !== 'message') {
-    return Promise.resolve(null);
+    return Promise.resolve(null)
   }
 
-  // use Line reply API to reply error message
+  //Use Line reply API to reply error message
   let reply = {}
   if (errorMessage === '請先註冊API金鑰' && event.message.text === '/註冊') {
     reply = { type: 'text', text: '📢系統訊息:\n請輸入你的API金鑰 👇' }
@@ -214,68 +214,70 @@ async function handleErrorEvent(event) {
   } else if (errorMessage === '請先註冊API金鑰') {
     reply = { type: 'text', text: '📢系統訊息:\n請先註冊API金鑰 ❗' }
   }
-  return client.replyMessage(event.replyToken, reply);
+  return client.replyMessage(event.replyToken, reply)
 }
 
-// Chat event handler
+//Request event handler
 async function handleEvent(event) {
   const user_id = event.source.userId
   const event_type = event.type
   const input_type = event.message.type
   const user_input = event.message.text
 
-  // Initialize OpenAI
+  //Initialize OpenAI configuration
   const configuration = new Configuration({
     apiKey: history[user_id].apiKey
-  });
-  const openai = new OpenAIApi(configuration);
+  })
+  const openai = new OpenAIApi(configuration)
 
-  // ignore non-message event
+  //Ignore non-message event
   if (event_type !== 'message') {
-    return Promise.resolve(null);
+    return Promise.resolve(null)
   } else if (input_type === 'text') {
-    // create a bot reply text message
+
+    //Request chatGPT with a response
     console.log(`User: ${user_input}`)
     const gpt_reply = await chatCompletion(user_input, user_id, openai)
     const reply = { type: 'text', text: gpt_reply }
 
-    // use reply API
-    return client.replyMessage(event.replyToken, reply);
+    //Use Line reply API to send clients message
+    return client.replyMessage(event.replyToken, reply)
   } else if (input_type === 'audio') {
 
+    //Use Line getMessageContent API to download the audio content
     await client.getMessageContent(event.message.id)
-      .then(response => {
-        const file_path = `./audio_temp/${user_id}.m4a`;
-        response.pipe(fs.createWriteStream(file_path));
-        console.log('System: 檔案下載成功');
+      .then((response) => {
+        const file_path = `./audio_temp/${user_id}.m4a`
+        response.pipe(fs.createWriteStream(file_path))
+        console.log('System: 檔案下載成功')
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch((error) => {
+        console.error(error)
+      })
 
-    // Call transcripton API to translate user's input
+    //Call transcripton API to translate user's input
     const translated_input = await createTranscription(user_id, openai)
     console.log('System: 翻譯完成')
 
-    // create a bot reply text message
+    //Request chatGPT with a response
     console.log(`User: ${translated_input}`)
     const gpt_reply = await chatCompletion(translated_input, user_id, openai)
     const reply = { type: 'text', text: gpt_reply }
 
-    // use reply API
-    return client.replyMessage(event.replyToken, reply);
+    //Use Line reply API to send clients message
+    return client.replyMessage(event.replyToken, reply)
   } else {
-    return Promise.resolve(null);
+    return Promise.resolve(null)
   }
 }
 
 //Confirm working status
 app.get('/', (req, res) => {
-  res.send('ChatGPT is listening...');
-});
+  res.send('ChatGPT is listening...')
+})
 
-// listen on port
-const port = process.env.PORT || 3000;
+//Listen on the port
+const port = process.env.PORT || 3000
 app.listen(port, () => {
-  console.log(`listening on ${port}`);
-});
+  console.log(`listening on ${port}`)
+})
