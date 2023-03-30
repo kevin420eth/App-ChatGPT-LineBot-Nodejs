@@ -237,12 +237,12 @@ async function handleEvent(event) {
             const data = await new Promise((resolve, reject) => {
                 const chunks = [];
                 stream.on('data', (chunk) => chunks.push(chunk));
-                stream.on('error', (err) => reject(err));
+                stream.on('error', (error) => reject(error));
                 stream.on('end', () => resolve(Buffer.concat(chunks)));
             });
             fs.writeFileSync(`./audio_temp/${user_id}.m4a`, data);
             console.log('System: 檔案下載成功');
-        } catch (err) {
+        } catch (error) {
             console.error('System: 檔案下載失敗');
         }
 
