@@ -1,7 +1,8 @@
-const { Configuration, OpenAIApi } = require("openai")
-const line = require('@line/bot-sdk')
-const express = require('express')
 const fs = require('fs')
+const express = require('express')
+const line = require('@line/bot-sdk')
+const { Configuration, OpenAIApi } = require("openai")
+
 
 //-------------------- ChatGPT Request --------------------//
 
