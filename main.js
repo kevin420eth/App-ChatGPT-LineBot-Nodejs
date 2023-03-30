@@ -150,7 +150,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             })
             .catch((err) => {
                 history[userId].activeErrorMessage = '準備註冊'
-                console.error('System: 請輸入你的API金鑰');
+                console.error('System: 請輸入你的API金鑰\n');
                 Promise
                     .all(req.body.events.map(handleErrorEvent))
                     .then(() => {
