@@ -48,13 +48,13 @@ const chatCompletion = async (line_message, userId, openai) => {
         }
     } catch (error) {
         if (error.message.startsWith('Invalid character in header content')) {
-            history[userId].activeErrorMessage = '無效的API金鑰'
+            history[userId].activeErrorMessage = '無效的API金鑰 💀'
             throw 'System: 無效的API金鑰\n'
         } else if (error.response.data.error.code === 'invalid_api_key') {
-            history[userId].activeErrorMessage = '無效的API金鑰'
+            history[userId].activeErrorMessage = '無效的API金鑰 💀'
             throw 'System: 無效的API金鑰\n'
         } else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
-            history[userId].activeErrorMessage = '請先註冊API金鑰'
+            history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
         } else if (error.response) {
             console.log(error.response.status)
@@ -74,10 +74,12 @@ const createTranscription = async (userId, openai) => {
         const translted_text = response.data.text
         return translted_text
     } catch (error) {
-        console.log(error)
-        console.log(error.message)
-        if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
-            history[userId].activeErrorMessage = '請先註冊API金鑰'
+        if(error.message === 'Request body larger than maxBodyLength limit'){
+          history[userId].activeErrorMessage = '檔案大小超過限制 📂'
+          throw 'System: 檔案大小超過限制\n'
+        }
+        else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
+            history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
         } else {
             console.log(error.message)
@@ -133,14 +135,10 @@ app.post('/callback', line.middleware(config), (req, res) => {
                 res.json(result)
             })
             .catch((error) => {
-                history[userId].activeErrorMessage = '請先註冊API金鑰'
                 console.error(error)
-                Promise
-                    .all(req.body.events.map(handleErrorEvent))
-                    .then(() => {
-                        history[userId].activeErrorMessage = ''
-                    })
-                res.status(500).end()
+                handleErrorEvent(req.body.events[0]).then(()=>{
+                  history[userId].activeErrorMessage = ''
+                })
             })
     } else if (user_input === '/註冊') {
         Promise
@@ -168,6 +166,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             .catch((error) => {
                 console.error(error)
                 handleErrorEvent(req.body.events[0]).then(() => {
+                  history[userId].activeErrorMessage = ''
                     history[userId].apiKey = ''
                     history[userId].activeDirective = ''
                 })
@@ -201,10 +200,8 @@ async function handleErrorEvent(event) {
     let reply = {}
     if (errorMessage === '請先註冊API金鑰' && event.message.text === '/註冊') {
         reply = { type: 'text', text: '📢系統訊息:\n請輸入你的API金鑰 👇' }
-    } else if (errorMessage === '無效的API金鑰') {
-        reply = { type: 'text', text: '📢系統訊息:\n無效的API金鑰 💀' }
-    } else if (errorMessage === '請先註冊API金鑰') {
-        reply = { type: 'text', text: '📢系統訊息:\n請先註冊API金鑰 ❗' }
+    }else {
+      reply = { type: 'text', text: `📢系統訊息:\n${errorMessage}` }
     }
     return client.replyMessage(event.replyToken, reply)
 }
