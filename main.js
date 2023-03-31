@@ -195,7 +195,7 @@ async function handleErrorEvent(event) {
 
     //Use Line reply API to reply error message
     let reply = {}
-    if (errorMessage === '請先註冊API金鑰' && event.message.text === '/註冊') {
+    if (errorMessage === '請先註冊API金鑰 🔑' && event.message.text === '/註冊') {
         reply = { type: 'text', text: '📢系統訊息:\n請輸入你的API金鑰 👇' }
     } else {
         reply = { type: 'text', text: `📢系統訊息:\n${errorMessage}` }
