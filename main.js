@@ -189,7 +189,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
         handleErrorEvent(req.body.events[0]).then(() => {
             userData[userId].activeErrorMessage = ''
         })
-    } else if (user_input === '/查看記憶體空間') {
+    } else if (user_input === '/查看記憶體') {
         console.log('User: /清除記憶體')
         console.log(`System: 已存放 ${userData[userId].messageCount}/${maxMeassageSaved} 則訊息\n`)
         userData[userId].activeErrorMessage = `已存放: ${userData[userId].messageCount}/${maxMeassageSaved} 📁`
