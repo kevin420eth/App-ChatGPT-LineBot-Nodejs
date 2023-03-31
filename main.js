@@ -12,7 +12,7 @@ const chatCompletion = async (line_message, userId, openai) => {
 
     const messages = []
 
-    for (const [input_text, completion_text] of userData[userId].messagelog) {
+    for (const [input_text, completion_text] of userData[userId].messageLog) {
         messages.push({ role: "user", content: input_text })
         messages.push({ role: "assistant", content: completion_text })
     }
@@ -42,7 +42,7 @@ const chatCompletion = async (line_message, userId, openai) => {
         } else if (user_input === '/註冊') {
             return '📢系統訊息:\n你已經完成註冊了 👽'
         } else {
-            userData[userId].messagelog.push([user_input, completion_text])
+            userData[userId].messageLog.push([user_input, completion_text])
             console.log(`ChatGPT: ${completion_text}\n`)
             return `🤖ChatGPT:\n${completion_text}`
         }
@@ -120,7 +120,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
         userData[userId] = {
             apiKey: '',
             messageCount: 0,
-            messagelog: [],
+            messageLog: [],
             activeDirective: '',
             activeErrorMessage: ''
         }
