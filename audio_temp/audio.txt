@@ -1,2 +1,2 @@
 The audio/video user send will be saved in audio_temp directory
-and once the translation is completed,it will be deleted right the way.
+and once the translation is completed, it will be deleted right the way.
