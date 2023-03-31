@@ -8,6 +8,11 @@ const { Configuration, OpenAIApi } = require("openai")
 
 const chatCompletion = async (line_message, userId, openai) => {
 
+    if (userData[userId].messageCount >= maxMeassageSaved) {
+        userData[userId].activeErrorMessage = '訊息存放記憶體已滿 📥'
+        throw 'System: 訊息存放記憶體已滿\n'
+    }
+
     const user_input = line_message
 
     const messages = []
@@ -43,6 +48,7 @@ const chatCompletion = async (line_message, userId, openai) => {
             return '📢系統訊息:\n你已經完成註冊了 👽'
         } else {
             userData[userId].messageLog.push([user_input, completion_text])
+            userData[userId].messageCount = userData[userId].messageLog.length
             console.log(`ChatGPT: ${completion_text}\n`)
             return `🤖ChatGPT:\n${completion_text}`
         }
@@ -63,6 +69,11 @@ const chatCompletion = async (line_message, userId, openai) => {
 }
 
 const createTranscription = async (userId, openai) => {
+    if (userData[userId].messageCount >= maxMeassageSaved) {
+        userData[userId].activeErrorMessage = '訊息存放記憶體已滿 📥'
+        throw 'System: 訊息存放記憶體已滿\n'
+    }
+
     try {
         const response = await openai.createTranscription(
             fs.createReadStream(`./audio_temp/${userId}.m4a`),
@@ -106,8 +117,9 @@ const client = new line.Client(config)
 //Create Express app
 const app = express()
 
-//Save user's prompt userData
+//Save user's prompt userData and max messages per user can save
 const userData = {}
+const maxMeassageSaved = 30
 
 //Register a webhook handler with middleware
 app.post('/callback', line.middleware(config), (req, res) => {
@@ -169,6 +181,21 @@ app.post('/callback', line.middleware(config), (req, res) => {
                     userData[userId].activeDirective = ''
                 })
             })
+    } else if (user_input === '/清除記憶體') {
+        clearMessage(userId)
+        console.log('User: /清除記憶體')
+        console.log('System: 記憶體清除成功\n')
+        userData[userId].activeErrorMessage = '記憶體清除成功 📤'
+        handleErrorEvent(req.body.events[0]).then(() => {
+            userData[userId].activeErrorMessage = ''
+        })
+    } else if (user_input === '/查看記憶體空間') {
+        console.log('User: /清除記憶體')
+        console.log(`System: 已存放 ${userData[userId].messageCount}/${maxMeassageSaved} 則訊息\n`)
+        userData[userId].activeErrorMessage = `已存放: ${userData[userId].messageCount}/${maxMeassageSaved} 📁`
+        handleErrorEvent(req.body.events[0]).then(() => {
+            userData[userId].activeErrorMessage = ''
+        })
     } else {
         Promise
             .all(req.body.events.map(handleRequestEvent))
@@ -261,6 +288,12 @@ async function handleRequestEvent(event) {
     } else {
         return Promise.resolve(null)
     }
+}
+
+//Clear user's message history
+function clearMessage(userID) {
+    userData[userID].messageLog = []
+    userData[userID].messageCount = userData[userID].messageLog.length
 }
 
 //Confirm working status
