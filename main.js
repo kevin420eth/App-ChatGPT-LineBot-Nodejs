@@ -139,15 +139,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
             activeErrorMessage: ''
         }
     }
-    if (messageType === 'image') {
-        console.log(`${user_input_time}`)
-        console.log('User: "使用者傳送了圖片檔"')
-        console.log('System: 不支援圖片檔\n')
-        userData[userId].activeErrorMessage = '目前暫不支援圖片作為輸入內容 💩'
-        handleErrorEvent(req.body.events[0]).then(() => {
-            userData[userId].activeErrorMessage = ''
-        })
-    } else if (messageType === 'audio' || messageType === 'video') {
+
+    if (messageType === 'audio' || messageType === 'video') {
         console.log(`${user_input_time}`)
         Promise
             .all(req.body.events.map(handleRequestEvent))
@@ -231,7 +224,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
         console.log(`${user_input_time}`)
         console.log('User: /使用說明')
         console.log('System: 已推送說明表\n')
-        userData[userId].activeErrorMessage = `📘 使用說明:\n\n🤖 API有用量限制, 超過免費額度OpenAI會向你收費, 可以到官網登入後查詢當前用量\n\n⛄ 註冊後即可與GPT對話, 偶爾伺服器繁忙GPT會回復比較慢\n\n🧙‍♂️ 如果GPT回復的內容看起來還沒講完, 有可能是單次回覆字數達到上限, 可以輸入'繼續'請他繼續說\n\n🎤 可以用語音輸入的方式與GPT對話, 檔案大小不可以超過25MB\n\n💻 可以上傳音訊/影片檔當作輸入內容給GPT, 檔案大小不可以超過25MB\n\n📥 系統訊息存量上限為30則, 請定時清除舊訊息`
+        userData[userId].activeErrorMessage = `📘 使用說明:\n\n🤖 API有用量限制,超過免費額度OpenAI會向你收費,可以到官網登入後查詢當前用量\n\n⛄ 註冊後即可與GPT對話,偶爾伺服器繁忙GPT會回復比較慢\n\n🧙‍♂️ 如果GPT回復的內容看起來還沒講完, 有可能是單次回覆字數達到上限, 可以輸入'繼續'請他繼續說\n\n🎤 可以用語音輸入的方式與GPT對話, 檔案大小不可以超過25MB\n\n💻 可以上傳音訊/影片檔當作輸入內容給GPT, 檔案大小不可以超過25MB\n\n📥 系統訊息存量上限為30則, 請定時清除訊息`
         handleErrorEvent(req.body.events[0]).then(() => {
             userData[userId].activeErrorMessage = ''
         })
