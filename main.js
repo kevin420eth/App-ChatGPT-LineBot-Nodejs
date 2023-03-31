@@ -197,7 +197,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
     } else if (user_input === '/清除記憶體') {
         console.log(`${user_input_time}`)
         clearMessage(userId)
-        console.log('User: /清除記憶體')
+        console.log('User: /查看記憶體用量')
         console.log('System: 記憶體清除成功\n')
         userData[userId].activeErrorMessage = '記憶體清除成功 📤'
         handleErrorEvent(req.body.events[0]).then(() => {
