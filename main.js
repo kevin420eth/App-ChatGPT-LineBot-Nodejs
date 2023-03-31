@@ -79,7 +79,8 @@ const createTranscription = async (userId, openai) => {
             history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
         } else {
-            console.log(error.message)
+            history[userId].activeErrorMessage = '發生錯誤,請再試一次'
+            throw `System: ${error.message}/n`
         }
     } finally {
         try {
