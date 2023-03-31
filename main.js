@@ -126,6 +126,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
     const userId = req.body.events[0].source.userId
     const messageType = req.body.events[0].message.type
     const user_input = req.body.events[0].message.text
+    let user_input_time = new Date(req.body.events[0].timestamp)
+    user_input_time = user_input_time.toString().replace(' (Coordinated Universal Time)', '')
 
     //Initialize User's data
     if (userData[userId] === undefined) {
@@ -139,6 +141,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
     }
 
     if (messageType === 'audio' || messageType === 'video') {
+        console.log(`${user_input_time}`)
         Promise
             .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
@@ -150,7 +153,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
                     userData[userId].activeErrorMessage = ''
                 })
             })
-    } else if (user_input === '/註冊') {
+    } else if (user_input.startsWith('/註冊')) {
+        console.log(`${user_input_time}`)
         Promise
             .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
@@ -165,6 +169,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
                 })
             })
     } else if (userData[userId].activeDirective === '請輸入你的API金鑰') {
+        console.log(`${user_input_time}`)
         userData[userId].apiKey = user_input
         Promise
             .all(req.body.events.map(handleRequestEvent))
@@ -181,7 +186,16 @@ app.post('/callback', line.middleware(config), (req, res) => {
                     userData[userId].activeDirective = ''
                 })
             })
+    } else if (user_input === '/指令查詢') {
+        console.log(`${user_input_time}`)
+        console.log('User: /指令查詢')
+        console.log('System: 已推送指令表\n')
+        userData[userId].activeErrorMessage = '以下為指令表:\n\n/註冊\n👉 註冊你的API金鑰\n\n/查看記憶體\n👉 查看已存放的訊息數量(最多為30則)\n\n/清除記憶體\n👉 清除全部歷史訊息\n\n/指令查詢\n👉 查看所有指令\n\n/回報問題\n👉 回報問題或建議給開發人員'
+        handleErrorEvent(req.body.events[0]).then(() => {
+            userData[userId].activeErrorMessage = ''
+        })
     } else if (user_input === '/清除記憶體') {
+        console.log(`${user_input_time}`)
         clearMessage(userId)
         console.log('User: /清除記憶體')
         console.log('System: 記憶體清除成功\n')
@@ -190,13 +204,42 @@ app.post('/callback', line.middleware(config), (req, res) => {
             userData[userId].activeErrorMessage = ''
         })
     } else if (user_input === '/查看記憶體') {
+        console.log(`${user_input_time}`)
         console.log('User: /清除記憶體')
         console.log(`System: 已存放 ${userData[userId].messageCount}/${maxMeassageSaved} 則訊息\n`)
         userData[userId].activeErrorMessage = `已存放: ${userData[userId].messageCount}/${maxMeassageSaved} 📁`
         handleErrorEvent(req.body.events[0]).then(() => {
             userData[userId].activeErrorMessage = ''
         })
+    } else if (user_input.startsWith('/回報問題')) {
+        console.log(`${user_input_time}`)
+        console.log('User: /回報問題')
+        console.log('System: 請輸入你的問題\n')
+        userData[userId].activeErrorMessage = `請輸入你的問題 👇`
+        userData[userId].activeDirective = '請輸入你的問題'
+        handleErrorEvent(req.body.events[0]).then(() => {
+            userData[userId].activeErrorMessage = ''
+        })
+    } else if (userData[userId].activeDirective === '請輸入你的問題') {
+        console.log(`${user_input_time}`)
+        const feedBack = user_input
+        console.log(`User: ${feedBack}`)
+        console.log('System: 已收到使用者回報')
+        userData[userId].activeErrorMessage = `已收到您的回報,謝謝 🙏`
+        handleErrorEvent(req.body.events[0]).then(() => {
+            data = `${user_input_time}\n${userId}:\n${feedBack}\n\n`
+            fs.writeFile('./feedback.txt', data, { flag: 'a' }, (error) => {
+                if (error) {
+                    console.log(error)
+                } else {
+                    console.log('System: 回報紀錄成功\n')
+                }
+            })
+            userData[userId].activeErrorMessage = ''
+            userData[userId].activeDirective = ''
+        })
     } else {
+        console.log(`${user_input_time}`)
         Promise
             .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
