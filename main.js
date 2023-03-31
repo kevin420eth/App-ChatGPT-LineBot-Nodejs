@@ -190,7 +190,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
         console.log(`${user_input_time}`)
         console.log('User: /指令查詢')
         console.log('System: 已推送指令表\n')
-        userData[userId].activeErrorMessage = '以下為指令表:\n\n/註冊\n👉 註冊你的API金鑰\n\n/查看記憶體\n👉 查看已存放的訊息數量(最多為30則)\n\n/清除記憶體\n👉 清除全部歷史訊息\n\n/指令查詢\n👉 查看所有指令\n\n/回報問題\n👉 回報問題或建議給開發人員'
+        userData[userId].activeErrorMessage = '以下為指令表:\n\n/註冊\n👉 註冊你的API金鑰\n\n/查看記憶體\n👉 查看已存放的訊息數量(最多為30則)\n\n/清除記憶體\n👉 清除全部歷史訊息\n\n/指令查詢\n👉 查看所有指令\n\n/使用說明\n👉 說明功能使用方式與限制\n\n/回報問題\n👉 回報問題或建議給開發人員'
         handleErrorEvent(req.body.events[0]).then(() => {
             userData[userId].activeErrorMessage = ''
         })
@@ -217,6 +217,14 @@ app.post('/callback', line.middleware(config), (req, res) => {
         console.log('System: 請輸入你的問題\n')
         userData[userId].activeErrorMessage = `請輸入你的問題 👇`
         userData[userId].activeDirective = '請輸入你的問題'
+        handleErrorEvent(req.body.events[0]).then(() => {
+            userData[userId].activeErrorMessage = ''
+        })
+    } else if (user_input === '/使用說明') {
+        console.log(`${user_input_time}`)
+        console.log('User: /使用說明')
+        console.log('System: 已推送說明表\n')
+        userData[userId].activeErrorMessage = `📘 使用說明:\n\n🤖 API有用量限制,超過免費額度OpenAI會向你收費,可以到官網登入後查詢當前用量\n\n⛄ 註冊後即可與GPT對話,偶爾伺服器繁忙GPT會回復比較慢\n\n🧙‍♂️ 如果GPT回復的內容看起來還沒講完, 有可能是單次回覆字數達到上限, 可以輸入'繼續'請他繼續說\n\n🎤 可以用語音輸入的方式與GPT對話, 檔案大小不可以超過25MB\n\n💻 可以上傳音訊/影片檔當作輸入內容給GPT, 檔案大小不可以超過25MB\n\n📥 系統訊息存量上限為30則, 請定時清除訊息`
         handleErrorEvent(req.body.events[0]).then(() => {
             userData[userId].activeErrorMessage = ''
         })
