@@ -127,7 +127,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
 
     if (messageType === 'audio' || messageType === 'video') {
         Promise
-            .all(req.body.events.map(handleEvent))
+            .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
                 res.json(result)
             })
@@ -139,7 +139,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             })
     } else if (user_input === '/註冊') {
         Promise
-            .all(req.body.events.map(handleEvent))
+            .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
                 res.json(result)
                 console.log('System: 你已經完成註冊了\n')
@@ -154,7 +154,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
     } else if (history[userId].activeDirective === '請輸入你的API金鑰') {
         history[userId].apiKey = user_input
         Promise
-            .all(req.body.events.map(handleEvent))
+            .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
                 res.json(result)
                 history[userId].activeDirective = ''
@@ -170,7 +170,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             })
     } else {
         Promise
-            .all(req.body.events.map(handleEvent))
+            .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
                 res.json(result)
             })
@@ -204,7 +204,7 @@ async function handleErrorEvent(event) {
 }
 
 //Request event handler
-async function handleEvent(event) {
+async function handleRequestEvent(event) {
     const user_id = event.source.userId
     const event_type = event.type
     const input_type = event.message.type
