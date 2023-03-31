@@ -291,9 +291,9 @@ async function handleRequestEvent(event) {
 }
 
 //Clear user's message history
-function clearMessage(userID) {
-    userData[userID].messageLog = []
-    userData[userID].messageCount = userData[userID].messageLog.length
+function clearMessage(userId) {
+    userData[userId].messageLog = []
+    userData[userId].messageCount = userData[userId].messageLog.length
 }
 
 //Confirm working status
