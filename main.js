@@ -12,7 +12,7 @@ const chatCompletion = async (line_message, userId, openai) => {
 
     const messages = []
 
-    for (const [input_text, completion_text] of history[userId].messagelog) {
+    for (const [input_text, completion_text] of userData[userId].messagelog) {
         messages.push({ role: "user", content: input_text })
         messages.push({ role: "assistant", content: completion_text })
     }
@@ -37,21 +37,21 @@ const chatCompletion = async (line_message, userId, openai) => {
 
         const completion_text = response.data.choices[0].message.content
 
-        if (history[userId].activeDirective === '請輸入你的API金鑰') {
+        if (userData[userId].activeDirective === '請輸入你的API金鑰') {
             return '📢系統訊息:\n您的ChatGPT已上線 🤖'
         } else if (user_input === '/註冊') {
             return '📢系統訊息:\n你已經完成註冊了 👽'
         } else {
-            history[userId].messagelog.push([user_input, completion_text])
+            userData[userId].messagelog.push([user_input, completion_text])
             console.log(`ChatGPT: ${completion_text}\n`)
             return `🤖ChatGPT:\n${completion_text}`
         }
     } catch (error) {
         if (error.message.startsWith('Invalid character in header content') || error.response.data.error.code === 'invalid_api_key') {
-            history[userId].activeErrorMessage = '無效的API金鑰 💀'
+            userData[userId].activeErrorMessage = '無效的API金鑰 💀'
             throw 'System: 無效的API金鑰\n'
         } else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
-            history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
+            userData[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
         } else if (error.response) {
             console.log(error.response.status)
@@ -72,14 +72,14 @@ const createTranscription = async (userId, openai) => {
         return translted_text
     } catch (error) {
         if (error.message === 'Request body larger than maxBodyLength limit') {
-            history[userId].activeErrorMessage = '檔案大小超過限制 📂'
+            userData[userId].activeErrorMessage = '檔案大小超過限制 📂'
             throw 'System: 檔案大小超過限制\n'
         }
         else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
-            history[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
+            userData[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
         } else {
-            history[userId].activeErrorMessage = '發生錯誤,請再試一次'
+            userData[userId].activeErrorMessage = '發生錯誤,請再試一次'
             throw `System: ${error.message}/n`
         }
     } finally {
@@ -106,8 +106,8 @@ const client = new line.Client(config)
 //Create Express app
 const app = express()
 
-//Save user's prompt history
-const history = {}
+//Save user's prompt userData
+const userData = {}
 
 //Register a webhook handler with middleware
 app.post('/callback', line.middleware(config), (req, res) => {
@@ -116,8 +116,8 @@ app.post('/callback', line.middleware(config), (req, res) => {
     const user_input = req.body.events[0].message.text
 
     //Initialize User's data
-    if (history[userId] === undefined) {
-        history[userId] = {
+    if (userData[userId] === undefined) {
+        userData[userId] = {
             apiKey: '',
             messageCount: 0,
             messagelog: [],
@@ -135,7 +135,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             .catch((error) => {
                 console.error(error)
                 handleErrorEvent(req.body.events[0]).then(() => {
-                    history[userId].activeErrorMessage = ''
+                    userData[userId].activeErrorMessage = ''
                 })
             })
     } else if (user_input === '/註冊') {
@@ -148,25 +148,25 @@ app.post('/callback', line.middleware(config), (req, res) => {
             .catch(() => {
                 console.error('System: 請輸入你的API金鑰\n')
                 handleErrorEvent(req.body.events[0]).then(() => {
-                    history[userId].activeErrorMessage = ''
-                    history[userId].activeDirective = '請輸入你的API金鑰'
+                    userData[userId].activeErrorMessage = ''
+                    userData[userId].activeDirective = '請輸入你的API金鑰'
                 })
             })
-    } else if (history[userId].activeDirective === '請輸入你的API金鑰') {
-        history[userId].apiKey = user_input
+    } else if (userData[userId].activeDirective === '請輸入你的API金鑰') {
+        userData[userId].apiKey = user_input
         Promise
             .all(req.body.events.map(handleRequestEvent))
             .then((result) => {
                 res.json(result)
-                history[userId].activeDirective = ''
+                userData[userId].activeDirective = ''
                 console.log('System: 註冊成功\n')
             })
             .catch((error) => {
                 console.error(error)
                 handleErrorEvent(req.body.events[0]).then(() => {
-                    history[userId].activeErrorMessage = ''
-                    history[userId].apiKey = ''
-                    history[userId].activeDirective = ''
+                    userData[userId].activeErrorMessage = ''
+                    userData[userId].apiKey = ''
+                    userData[userId].activeDirective = ''
                 })
             })
     } else {
@@ -178,7 +178,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
             .catch((error) => {
                 console.error(error)
                 handleErrorEvent(req.body.events[0]).then(() => {
-                    history[userId].activeErrorMessage = ''
+                    userData[userId].activeErrorMessage = ''
                 })
             })
     }
@@ -187,7 +187,7 @@ app.post('/callback', line.middleware(config), (req, res) => {
 //Error event handler
 async function handleErrorEvent(event) {
     const user_id = event.source.userId
-    const errorMessage = history[user_id].activeErrorMessage
+    const errorMessage = userData[user_id].activeErrorMessage
 
     //Ignore non-message event
     if (event.type !== 'message') {
@@ -213,7 +213,7 @@ async function handleRequestEvent(event) {
 
     //Initialize OpenAI configuration
     const configuration = new Configuration({
-        apiKey: history[user_id].apiKey
+        apiKey: userData[user_id].apiKey
     })
     const openai = new OpenAIApi(configuration)
 
