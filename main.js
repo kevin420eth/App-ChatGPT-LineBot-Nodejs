@@ -136,8 +136,6 @@ app.post('/callback', line.middleware(config), (req, res) => {
         console.log(`${user_input_time}`)
         console.log("System: A user just unfollowed this account\n")
         return
-    } else {
-        console.log(`System: 發生非預期錯誤\n${req.body}\n`)
     }
 
     const userId = req.body.events[0].source.userId
