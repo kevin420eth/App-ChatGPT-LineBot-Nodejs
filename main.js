@@ -125,7 +125,8 @@ const maxMeassageSaved = 30
 app.post('/callback', line.middleware(config), (req, res) => {
 
     let user_input_time = new Date(req.body.events[0].timestamp)
-    
+    user_input_time = user_input_time.toString().replace(' (Coordinated Universal Time)', '')
+
     //Handle follow and unfollow events
     if (req.body.events[0].type === 'follow') {
         console.log(`${user_input_time}`)
@@ -140,7 +141,6 @@ app.post('/callback', line.middleware(config), (req, res) => {
     const userId = req.body.events[0].source.userId
     const messageType = req.body.events[0].message.type
     const user_input = req.body.events[0].message.text
-    user_input_time = user_input_time.toString().replace(' (Coordinated Universal Time)', '')
 
     //Initialize User's data
     if (userData[userId] === undefined) {
