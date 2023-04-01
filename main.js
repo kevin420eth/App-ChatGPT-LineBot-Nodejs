@@ -124,11 +124,15 @@ const maxMeassageSaved = 30
 //Register a webhook handler with middleware
 app.post('/callback', line.middleware(config), (req, res) => {
 
+    let user_input_time = new Date(req.body.events[0].timestamp)
+    
     //Handle follow and unfollow events
     if (req.body.events[0].type === 'follow') {
+        console.log(`${user_input_time}`)
         console.log("System: A user just followed this account\n")
         return
     } else if (req.body.events[0].type === 'unfollow') {
+        console.log(`${user_input_time}`)
         console.log("System: A user just unfollowed this account\n")
         return
     }
@@ -136,7 +140,6 @@ app.post('/callback', line.middleware(config), (req, res) => {
     const userId = req.body.events[0].source.userId
     const messageType = req.body.events[0].message.type
     const user_input = req.body.events[0].message.text
-    let user_input_time = new Date(req.body.events[0].timestamp)
     user_input_time = user_input_time.toString().replace(' (Coordinated Universal Time)', '')
 
     //Initialize User's data
