@@ -123,6 +123,16 @@ const maxMeassageSaved = 30
 
 //Register a webhook handler with middleware
 app.post('/callback', line.middleware(config), (req, res) => {
+
+    //Handle follow and unfollow events
+    if (req.body.events[0].type === 'follow') {
+        console.log("System: A user just followed this account\n")
+        return
+    } else if (req.body.events[0].type === 'unfollow') {
+        console.log("System: A user just unfollowed this account\n")
+        return
+    }
+
     const userId = req.body.events[0].source.userId
     const messageType = req.body.events[0].message.type
     const user_input = req.body.events[0].message.text
