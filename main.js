@@ -59,6 +59,9 @@ const chatCompletion = async (line_message, userId, openai) => {
         } else if (error.response.data.error.message.startsWith("You didn't provide an API key.")) {
             userData[userId].activeErrorMessage = '請先註冊API金鑰 🔑'
             throw 'System: 請先註冊API金鑰\n'
+        } else if (error.response.data.error.message.startsWith('You exceeded your current quota')) {
+            userData[userId].activeErrorMessage = '已達到API免費額度 🎈'
+            throw 'System: 已達到API免費額度\n'
         } else if (error.response) {
             console.log(error.response.status)
             console.log(error.response.data)
